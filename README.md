@@ -12,7 +12,7 @@ Esta pagina hecha con django hace web scraping sobre celulares y cargadores a la
 - Xiaomi
 - Mercadositio
 
-Al hacer web scraping a Mercadolibre y la tienda de Xiaomi ARG se abre el navegador y el script realiza un scroll sobre las paginas para poder cargar las imagenes, ya que sino, los productos no tienen imagenes porque Mercadolibre y Xioami utilizan Lazy Loading.
+Al hacer web scraping a Mercadolibre y la tienda de Xiaomi ARG se abre el navegador y el script realiza un scroll sobre las paginas para poder cargar las imagenes, ya que sino, los productos no tienen imagenes porque Mercadolibre y Xiaomi utilizan Lazy Loading.
 
 ---
 
