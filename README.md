@@ -1,5 +1,5 @@
 # Web Scrapin con BeautifulSoup
----
+
 ![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
@@ -19,13 +19,13 @@ Al hacer web scraping a Mercadolibre y la tienda de Xiaomi ARG se abre el navega
 ### Instalacion:
    1. Instalar python
 
-   2. ```python -m venv venv```
+   2. ```pip install virtualenv```
 
-   3. ```venv\Scripts\activate``` o ```venv\Scripts\activate.bat```
+   3. ```python -m venv venv```
 
-   4. ```pip install -r requirements.txt```
-   
-   5. ```python manage.py migrate```
+   4. ```venv\Scripts\activate``` o ```venv\Scripts\activate.bat```
+
+   5. ```pip install -r requirements.txt```
 
    6. ```python manage.py runserver```
 
@@ -33,10 +33,10 @@ Al hacer web scraping a Mercadolibre y la tienda de Xiaomi ARG se abre el navega
 ### Contacto:
 
 <div style="text-align: center;">
-    <a href="https://discord.com/users/7428">
+    <a href="https://discord.com/users/7428" target="_blank">
         <img src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white" alt="Discord" />
     </a>
-    <a href="mailto:nardellidavid611@gmail.com">
+    <a href="mailto:nardellidavid611@gmail.com" target="_blank">
         <img src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Gmail" />
     </a>
 </div>
