@@ -1,0 +1,11 @@
+#menu-ordenar {
+    display: none;
+}
+.mostrar-menu-ordenar {
+    display: block !important;
+}
+
+#contenedor-productos img {
+    box-sizing: border-box;
+    max-height: 192px !important;
+}
