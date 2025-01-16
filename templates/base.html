@@ -1,20 +1,23 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <script src="https://cdn.tailwindcss.com"></script>
     <title>{% block title %}{% endblock %}</title>
-</head>
-<body class="flex flex-col justify-center items-center bg-slate-800">
+  </head>
+  <body
+    class="flex flex-col justify-center items-center bg-slate-800 subpixel-antialiased"
+  >
     {% block body %}{% endblock %}
 
     <script src="{% static 'js/busqueda.js' %}"></script>
     <script src="{% static 'js/ordenar-menu.js' %}"></script>
+    <script src="{% static 'js/descargar-json.js' %}"></script>
     <script>
-        mostrar_productos(productosOriginalesArray)
+      mostrar_productos(productosOriginalesArray);
     </script>
-</body>
+  </body>
 </html>

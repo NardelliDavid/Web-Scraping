@@ -3,148 +3,139 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import requests, time
+import requests
+import time
+import json
 
-def index(request):
-    # ------------------------------------------------------------------------------------------------------------------------------------------
-    # Scraping a mercadositio
+# Función para scraping de mercadositio
+def scrape_mercadositio():
     URL_base = "https://mercadositio.com/productos/celulares"
-    
-    li_items = [] # Lista para almacenar los productos
-    pagina = 1  # Pagina en la que debe iniciar a scrapear
-    
+    li_items = []
+    pagina = 1
+
     while True:
-        URL = f"{URL_base}?page={pagina}" # URL donde iniciara el script
-        
-        # Obtener el contenido de la página
-        resultado = requests.get(URL)
-        
-        # Si no hay respuesta exitosa (200), salir del ciclo
-        if resultado.status_code != 200:
-            print("Error en la pagina")
+        URL = f"{URL_base}?page={pagina}"
+        response = requests.get(URL)
+
+        if response.status_code != 200:
+            print(f"Error en la página: {URL}")
             break
-        
-        soup = BeautifulSoup(resultado.text, 'html.parser')
-        
-        # Extraer los productos de la página
+
+        soup = BeautifulSoup(response.text, 'html.parser')
         productos_encontrados = False
-        for li in soup.find_all('li'):
-            div_tag = li.find('div', class_='hover')
-            img_tag = div_tag.find('img') if div_tag else None
-            if not img_tag: # En caso de que no exista el img tag
-                div_tag = li.find('picture') # Busca la etiqueta picture
-                img_tag = div_tag.find('img') if div_tag else None # Busca la imagen
+
+        for li in soup.find_all('li'): # Obtiene cada producto de la pagina
+            img_tag = li.find('picture').find('img') if li.find('picture') else None
+            title_tag = li.find('h2', class_='title')
+            price_tag = li.find('span', class_='price-display')
+            a_tag = li.find('a', href=True)
+
             img = img_tag['src'] if img_tag else None
-            
-            title_tag = li.find('h2', class_='title') # Obtiene el titulo del producto
-            title = title_tag.text if title_tag else None
-            
-            price_tag = li.find('span', class_='price-display') # Obtiene el precio del producto
-            price = price_tag.text if price_tag else None
-            
-            a_tag = li.find('a', href=True) # Obtiene la url hacia el producto
-            href = a_tag['href'] if a_tag else None
-            if href: # Si existe la url la concatena
-                href = "https://mercadositio.com"+href
-            
-            if title and price and href: # Agrega el producto solo si existe titulo, precio y link al producto
+            title = title_tag.text.strip() if title_tag else None
+            price = price_tag.text.strip() if price_tag else None
+            href = f"https://mercadositio.com{a_tag['href']}" if a_tag else None
+
+            if title and price and href: # Agrega los productos al array
                 li_items.append({'title': title, 'price': price, 'img': img, 'href': href, 'pagina': "Mercadositio"})
                 productos_encontrados = True
-        
-        # Si no se encontraron productos en esta página, significa que no hay más páginas
+
         if not productos_encontrados:
-            print("--------No hay mas paginas a scrapear (mercadositio)--------")
             break
-        
-        # Avanzar a la siguiente página
+
         pagina += 1
-    
-    # ------------------------------------------------------------------------------------------------------------------------------------------
-    # Scraping a mercadolibre (20 mas vendidos)
-    URL_MELI_CELUS = "https://www.mercadolibre.com.ar/mas-vendidos/MLA1055#origin=pdp"
-    URL_MELI_CABLES = "https://www.mercadolibre.com.ar/mas-vendidos/MLA429749#origin=vip"
-    
-    URLS_MELI = [URL_MELI_CELUS, URL_MELI_CABLES]
-    
-    # Abre el navegador
-    driver = webdriver.Chrome()
-    
-    for url in URLS_MELI:
+
+    return li_items
+
+# Función para scraping de MercadoLibre
+def scrape_mercadolibre(driver, urls):
+    li_items = []
+
+    for url in urls:
         try:
-            driver.get(url) # Entra en el navegador a la url de mercadolibre
-            # Realiza scroll en mercadolibre para cargar las imagenes correctamente
+            driver.get(url)
             body = driver.find_element(By.TAG_NAME, "body")
             for _ in range(10):
                 body.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.1)
-                
-            # Extrae el html de la pagina despues de cargarse
-            html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
-            # Div que almacena todos los productos
-            clasesDiv = "andes-card ui-search-layout--grid__item poly-card poly-card--grid-card andes-card--flat andes-card--padding-0 andes-card--animated"
-            for div in soup.find_all('div', class_=clasesDiv):
-                # Busca la imagen de portada
-                div_tag = div.find('div', class_='poly-card__portada')
-                img_tag = div_tag.find('img', class_='poly-component__picture') if div_tag else None
+
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            productos = soup.find_all('div', class_="andes-card")
+
+            for producto in productos:
+                img_tag = producto.find('img', class_='poly-component__picture')
+                title_tag = producto.find('a', class_='poly-component__title', href=True)
+                price_tag = producto.find('span', class_='andes-money-amount__fraction')
+
                 img = img_tag['src'] if img_tag else None
-                # Busca el titulo del producto
-                title_tag = div.find('a', class_='poly-component__title', href=True)
-                title = title_tag.text if title_tag else None
-                # Busca el precio del producto
-                price_tag = div.find('span', class_='andes-money-amount__fraction')
-                price = price_tag.text if price_tag else None
-                # Busca la url del producto
+                title = title_tag.text.strip() if title_tag else None
+                price = price_tag.text.strip() if price_tag else None
                 href = title_tag['href'] if title_tag else None
-                
-                if title and price and href: # Agrega el producto solo si existe titulo, precio y link al producto
+
+                if title and price and href:
                     li_items.append({'title': title, 'price': price, 'img': img, 'href': href, 'pagina': "Mercadolibre"})
+
         except Exception as e:
-                print(f"Error al cargar la página: {e}")
-                print(f"Detalles del error: {str(e)}")
-    
-    # ------------------------------------------------------------------------------------------------------------------------------------------
-    URL_XIAOMI_CELULARES = "https://xiaomistore.com.ar/11-smartphones?order=product.price.asc&q=Categor%C3%ADas-Redmi-Redmi+Note/Disponibilidad-En+stock"
-    URL_XIAOMI_CARGADORES = "https://xiaomistore.com.ar/261-cargadores-?order=product.position.asc&productListView=grid"
-    
-    URLS_XIAOMI = [URL_XIAOMI_CELULARES, URL_XIAOMI_CARGADORES]
-    
-    for url in URLS_XIAOMI:
+            print(f"Error al procesar {url}: {e}")
+
+    return li_items
+
+# Función para scraping de Xiaomi
+def scrape_xiaomi(driver, urls):
+    li_items = []
+
+    for url in urls:
         try:
-            driver.get(url) # Entra en el navegador a la url de xiaomi
-            # Realiza scroll en xiaomi para cargar las imagenes correctamente
+            driver.get(url)
             body = driver.find_element(By.TAG_NAME, "body")
             for _ in range(15):
                 body.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.4)
-                    
-            # Extrae el html de la pagina despues de cargarse
-            html = driver.page_source
-            soup = BeautifulSoup(html, 'html.parser')
-            
-            # Contenedor de los productos
+
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
             contenedor = soup.find('div', class_="products row products-grid")
-            # Obtiene los datos de cada producto
-            for producto in contenedor.find_all('div', class_="js-product-miniature-wrapper"): # Producto 1 por 1
-                # Imagen del producto
-                img_tag = producto.find('img', class_="img-fluid js-lazy-product-image lazy-product-image product-thumbnail-first entered loaded") if div_tag else None
-                img = img_tag['src'] if img_tag else None
-                # Titulo
+
+            for producto in contenedor.find_all('div', class_="js-product-miniature-wrapper"):
+                img_tag = producto.find('img', class_="img-fluid")
                 title_tag = producto.find('h2', class_="h3 product-title")
                 link_tag = title_tag.find('a') if title_tag else None
-                title = link_tag.text if link_tag else None
-                # Link
-                link = link_tag['href'] if link_tag else None
-                # Precio
-                price_tag = producto.find('div', class_="product-price-and-shipping")
-                price_t = price_tag.find('a') if price_tag else None
-                price = price_t.text if price else None
-                
-                if title and price and link: # Agrega el producto solo si existe titulo, precio y link al producto
-                    li_items.append({'title': title, 'price': price, 'img': img, 'href': link, 'pagina': "Xiaomi"})
+                price_tag = producto.find('div', class_="product-price-and-shipping").find('a')
+
+                img = img_tag['src'] if img_tag else None
+                title = link_tag.text.strip() if link_tag else None
+                href = link_tag['href'] if link_tag else None
+                price = price_tag.text.strip() if price_tag else None
+
+                if title and price and href:
+                    li_items.append({'title': title, 'price': price, 'img': img, 'href': href, 'pagina': "Xiaomi"})
+
         except Exception as e:
-            print("Error")
-    driver.quit() # Cierra el navegador
-    
-    # Pasar los productos a la plantilla
-    return render(request, "index.html", {"li_items": li_items})
+            print(f"Error al procesar {url}: {e}")
+
+    return li_items
+
+# Vista principal
+def index(request):
+    li_items = scrape_mercadositio()
+
+    driver = webdriver.Chrome()
+    try:
+        meli_urls = [
+            "https://www.mercadolibre.com.ar/mas-vendidos/MLA1055#origin=pdp",
+            "https://www.mercadolibre.com.ar/mas-vendidos/MLA429749#origin=vip"
+        ]
+        li_items += scrape_mercadolibre(driver, meli_urls)
+
+        xiaomi_urls = [
+            "https://xiaomistore.com.ar/11-smartphones?order=product.price.asc&q=Categor%C3%ADas-Redmi-Redmi+Note/Disponibilidad-En+stock",
+            "https://xiaomistore.com.ar/261-cargadores-?order=product.position.asc&productListView=grid"
+        ]
+        li_items += scrape_xiaomi(driver, xiaomi_urls)
+
+    finally:
+        driver.quit()
+
+    # Transforma el array a JSON
+    li_items_json = json.dumps(li_items)
+
+    # Renderiza la plantilla
+    return render(request, 'index.html', {'li_items': li_items, 'li_items_json': li_items_json})

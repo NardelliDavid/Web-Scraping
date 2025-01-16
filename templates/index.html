@@ -3,12 +3,16 @@
 {% load static %}
 
 {% block body %}
-    <div class="flex justify-center items-center flex-wrap gap-4 m-3 max-w-7xl">
-        <div class="flex justify-between items-center w-full">
+    <div class="flex justify-center items-center flex-col gap-4 m-3 max-w-7xl">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-3">
             <div class="shadow rounded-md p-2 bg-white flex justify-center items-center flex-row gap-2">
                 <input type="search" name="search" id="search-bar" oninput="busqueda()" placeholder="Buscar productos..." class="focus:outline-none">
                 <img src="{% static 'img/buscar.png' %}" alt="buscar.png" class="filter invert" style="width: 20px; height: 20px;">
             </div>
+            <button onclick="EnviarJSON()" class="shadow rounded-md p-2 bg-yellow-400 flex justify-center items-center flex-row gap-2">
+                <p class="p-0 m-0 font-semibold">Descargar en JSON</p>
+                <img src="{% static 'img/flecha-abajo.png' %}" alt="download.png" width="25px" height="25px">
+            </button>
                 <div class="bg-white shadow px-3 py-2 rounded-md flex flex-row justify-center items-center gap-3">
                     <h2 id="h2-ordenar-por">Ordenar por: Sin ordenar</h2>
                     <div class="flex justify-end">
@@ -38,4 +42,14 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- Recibe los productos en json y los guarda en una variable -->
+    <script>
+        var productos_json = JSON.parse("{{ li_items_json|escapejs }}");
+        console.log(productos_json);
+        // Enviar los productos a la funcion para descargarlos
+        function EnviarJSON(){
+            DescargarJSON(productos_json)
+        }
+    </script>
 {% endblock %}
