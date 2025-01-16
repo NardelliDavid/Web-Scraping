@@ -7,7 +7,7 @@
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
 ---
-Esta aplicacion web esta hecha con django, hace web scraping sobre celulares y cargadores a las siguientes paginas web:
+Esta aplicacion web realiza web scraping sobre celulares y cargadores a las siguientes paginas web:
 - Mercadolibre (20 mas vendidos)
 - Xiaomi
 - Mercadositio
